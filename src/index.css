@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+/* Hide scrolling and force no overflow */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #F6F6F6; /* optional: a light gray behind the "phone" */
+  height: 100vh;
+}
