@@ -5,6 +5,12 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #F6F6F6; /* optional: a light gray behind the "phone" */
+  background: #F6F6F6;
   height: 100vh;
+}
+
+@layer base {
+  html, body {
+    font-family: 'Lato', sans-serif;
+  }
 }
