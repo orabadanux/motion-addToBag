@@ -1,27 +1,28 @@
 import { Handbag, List, MagnifyingGlass, ArrowsHorizontal } from 'phosphor-react';
-import { useState } from 'react';
-import { useRive, useStateMachineInput } from '@rive-app/react-canvas';
+import { useState, useEffect } from 'react';
+import { useRive } from '@rive-app/react-canvas';
 
 function App() {
-  // Set up Rive with your BagAnimation.riv file
+  // 1) Use Rive with your BagAnimation.riv file
   const { rive, RiveComponent } = useRive({
-    src: '/assets/BagAnimation.riv',         // Place this file in public/assets
-    stateMachines: 'BagStateMachine',          // Must exactly match your Rive state machine name
-    autoplay: false,
-    animations: 'Idle',                        // Start with Idle animation
+    src: '/assets/BagAnimation.riv',     // Must be in /public/assets
+    stateMachines: 'BagStateMachine',    // Must match your Rive file exactly
+    autoplay: true,                      // We'll start with the Idle animation
   });
 
-  // Get the trigger input for BagStart
-  const bagStartTrigger = useStateMachineInput(rive, 'BagStateMachine', 'BagStart');
+  // 2) Keep track of the currently playing animation
+  const [currentAnimation, setCurrentAnimation] = useState('Idle');
 
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const handleButtonClick = () => {
-    if (!isAnimating && bagStartTrigger) {
-      bagStartTrigger.fire();  // Fire BagStart trigger
-      setIsAnimating(true);
-      // Optionally, add further timing or state logic here.
+  // 3) Whenever rive or currentAnimation changes, play that animation
+  useEffect(() => {
+    if (rive) {
+      rive.play(currentAnimation);
     }
+  }, [rive, currentAnimation]);
+
+  // 4) On button click, we switch from 'Idle' to 'BagStart'
+  const handleButtonClick = () => {
+    setCurrentAnimation('BagStart');
   };
 
   return (
@@ -113,16 +114,18 @@ function App() {
         </div>
 
         {/* Rive Animated Button */}
-        <div
-          className="absolute bottom-[30px] left-0 w-full h-[50px] z-30 cursor-pointer"
-          onClick={handleButtonClick}
-        >
-          <RiveComponent className="w-full h-full bg-red-500" />
-          {/* Optional overlay text, remove if text is part of your Rive file */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="text-white font-lato text-sm font-medium">
-              Add to Bag
-            </span>
+        <div className="absolute bottom-0 left-0 w-full flex justify-center">
+          <div
+            className="relative w-[375px] h-[224px] cursor-pointer"
+            onClick={handleButtonClick}
+          >
+            <RiveComponent className="w-full h-full" />
+            {/* Optional overlay text if your Rive file doesn't include it */}
+            <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
+              <span className="mb-2 text-white font-lato text-sm font-medium">
+                Add to Bag
+              </span>
+            </div>
           </div>
         </div>
 
