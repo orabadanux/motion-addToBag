@@ -3,38 +3,39 @@ import { useState, useEffect } from 'react';
 import { useRive } from '@rive-app/react-canvas';
 
 function App() {
-  // 1) Use Rive with your BagAnimation.riv file
-  const { rive, RiveComponent } = useRive({
-    src: '/assets/BagAnimation.riv',     // Must be in /public/assets
-    stateMachines: 'BagStateMachine',    // Must match your Rive file exactly
-    autoplay: true,                      // We'll start with the Idle animation
+  // Rive - Shared file but multiple instances
+  const { rive: riveFront, RiveComponent: RiveFront } = useRive({
+    src: '/assets/BagAnimation.riv',
+    stateMachines: 'BagStateMachine',
+    autoplay: true,
   });
 
-  // 2) Keep track of the currently playing animation
-  const [currentAnimation, setCurrentAnimation] = useState('Idle');
+  const { rive: riveBack, RiveComponent: RiveBack } = useRive({
+    src: '/assets/BagAnimation.riv',
+    stateMachines: 'BagStateMachine',
+    autoplay: true,
+  });
 
-  // 3) Whenever rive or currentAnimation changes, play that animation
-  useEffect(() => {
-    if (rive) {
-      rive.play(currentAnimation);
-    }
-  }, [rive, currentAnimation]);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  // 4) On button click, we switch from 'Idle' to 'BagStart'
   const handleButtonClick = () => {
-    setCurrentAnimation('BagStart');
+    // 1. Play BagStart in the front
+    riveFront?.play('BagStart');
+
+    // 2. After BagStart finishes (~1s), play both front/back OpenBag animations
+    setTimeout(() => {
+      riveFront?.play('OpenBagFront');
+      riveBack?.play('OpenBagBack');
+      setIsAnimating(true); // fades out the text
+    }, 1000);
   };
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-slate-50 overflow-hidden">
       <div className="relative w-[280px] h-[610px] bg-neutral-100 rounded-3xl shadow-xl overflow-hidden px-3">
-        
+
         {/* Status Bar */}
-        <img
-          src="/assets/status_bar.svg"
-          alt="Status Bar"
-          className="absolute top-0 left-0 w-full h-[44px] z-20 pointer-events-none"
-        />
+        <img src="/assets/status_bar.svg" alt="Status Bar" className="absolute top-0 left-0 w-full h-[44px] z-20 pointer-events-none" />
 
         {/* Top Navigation */}
         <div className="pt-[44px] pb-4 flex justify-between items-center">
@@ -49,12 +50,8 @@ function App() {
         <div className="bg-white rounded-2xl px-3 pt-2 pb-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="font-lato text-base text-neutral-900 font-semibold">
-                Nike Air Max 90
-              </h1>
-              <p className="font-lato text-xs text-neutral-500 font-normal">
-                Men's Shoes
-              </p>
+              <h1 className="font-lato text-base text-neutral-900 font-semibold">Nike Air Max 90</h1>
+              <p className="font-lato text-xs text-neutral-500 font-normal">Men's Shoes</p>
             </div>
             <p className="font-lato text-xl text-neutral-900 font-bold">$130</p>
           </div>
@@ -74,17 +71,11 @@ function App() {
           {/* Size Row */}
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <span className="font-lato text-sm font-semibold text-neutral-900">
-                Select size
-              </span>
-              <div className="font-lato px-2 py-1 bg-neutral-100 text-neutral-900 rounded-md text-sm font-semibold">
-                11
-              </div>
+              <span className="font-lato text-sm font-semibold text-neutral-900">Select size</span>
+              <div className="font-lato px-2 py-1 bg-neutral-100 text-neutral-900 rounded-md text-sm font-semibold">11</div>
             </div>
             <button className="font-lato px-2 py-1.5 border border-gray-300 text-neutral-900 rounded-lg text-sm flex items-center gap-1.5">
-              <span>
-                <ArrowsHorizontal size={12} weight="regular" />
-              </span>
+              <span><ArrowsHorizontal size={12} weight="regular" /></span>
               <span>Size guide</span>
             </button>
           </div>
@@ -92,39 +83,36 @@ function App() {
 
         {/* Suggestions */}
         <div className="mt-3 space-y-2">
-          <p className="font-lato font-medium text-base text-neutral-900">
-            You might also like
-          </p>
+          <p className="font-lato font-medium text-base text-neutral-900">You might also like</p>
           <div className="grid grid-cols-2 gap-2">
             <div className="aspect-[1/1] bg-white rounded-lg flex items-center justify-center">
-              <img
-                src="/assets/greensneaker.png"
-                alt="Sneaker 1"
-                className="object-contain"
-              />
+              <img src="/assets/greensneaker.png" alt="Sneaker 1" className="object-contain" />
             </div>
             <div className="aspect-[1/1] bg-white rounded-lg flex items-center justify-center">
-              <img
-                src="/assets/blacksneaker.png"
-                alt="Sneaker 2"
-                className="object-contain"
-              />
+              <img src="/assets/blacksneaker.png" alt="Sneaker 2" className="object-contain" />
             </div>
           </div>
         </div>
 
-        {/* Rive Animated Button */}
+        {/* Rive Button + Bag Animation */}
         <div className="absolute bottom-0 left-0 w-full flex justify-center">
           <div
             className="relative w-[375px] h-[224px] cursor-pointer"
             onClick={handleButtonClick}
           >
-            <RiveComponent className="w-full h-full" />
-            {/* Optional overlay text if your Rive file doesn't include it */}
-            <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
-              <span className="mb-2 text-white font-lato text-sm font-medium">
-                Add to Bag
-              </span>
+            {/* Back */}
+            <RiveBack className="absolute top-0 left-0 w-full h-full z-10" />
+
+            {/* Front */}
+            <RiveFront className="absolute top-0 left-0 w-full h-full z-20" />
+
+            {/* Text Overlay */}
+            <div
+              className={`absolute w-full bottom-[42px] flex justify-center pointer-events-none transition-opacity duration-300 ${
+                isAnimating ? 'opacity-0' : 'opacity-100'
+              }`}
+            >
+              <span className="text-white font-lato text-sm font-medium">Add to Bag</span>
             </div>
           </div>
         </div>
