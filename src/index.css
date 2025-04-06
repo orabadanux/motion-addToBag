@@ -14,3 +14,17 @@ html, body {
     font-family: 'Lato', sans-serif;
   }
 }
+@keyframes fly-into-bag {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(180px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.animate-fly-into-bag {
+  animation: fly-into-bag 750ms ease-in-out forwards;
+}
