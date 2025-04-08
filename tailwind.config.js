@@ -18,7 +18,11 @@ export default {
       animation: {
         'fly-into-bag': 'fly-into-bag 0.75s ease-in-out forwards',
       },
+      
     },
   },
   plugins: [],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
 };
