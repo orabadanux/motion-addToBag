@@ -10,19 +10,29 @@ export default {
         lato: ['Lato', 'sans-serif'],
       },
       keyframes: {
-        'fly-into-bag': {
-          '0%': { transform: 'translateY(0) scale(1)', opacity: '1' },
-          '100%': { transform: 'translateY(100px) scale(0.5)', opacity: '0' },
+        anticipate: {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '100%': { transform: 'translateY(-10px) scale(1.05) skewX(-3deg)', opacity: '1' },
+        },
+        fly: {
+          '0%': { transform: 'translateY(-10px) scale(1.05)', opacity: '1' },
+          '100%': { transform: 'translateY(140px) scale(0.5)', opacity: '0' },
         },
       },
       animation: {
-        'fly-into-bag': 'fly-into-bag 0.75s ease-in-out forwards',
+        anticipate: 'anticipate 0.6s ease-out forwards',
+        fly: 'fly 0.75s ease-in-out forwards',
       },
       
     },
   },
   plugins: [],
   future: {
-    hoverOnlyWhenSupported: true,
+    respectDefaultRingColorOpacity: false,
+    // Add this line below
+    disableColorPalette: true,
+  },
+  corePlugins: {
+    preflight: true,
   },
 };

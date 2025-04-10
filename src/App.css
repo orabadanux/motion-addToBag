@@ -1,26 +1,5 @@
-@keyframes anticipate {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(1.03) rotate(-1deg);
-  }
-}
-@keyframes enter {
-  0% {
-    transform: scale(1.03) rotate(-1deg) translateY(0);
-  }
-  100% {
-    transform: scale(0.2) translateY(-160px) rotate(12deg);
-    opacity: 0;
-  }
-}
-.animate-anticipate {
-  animation: anticipate 0.3s ease forwards;
-}
-.animate-enter {
-  animation: enter 0.6s ease forwards;
-}
+
+
 .app-container {
   position: relative;
   width: 100vw;
