@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 
-/* Hide scrolling and force no overflow */
 html, body {
   margin: 0;
   padding: 0;

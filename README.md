@@ -1,54 +1,59 @@
-# React + TypeScript + Vite
+# 🛍️ Add to Bag Animation – React + Rive
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a product animation built with **React**, **Framer Motion**, **Rive**, and **html-to-image**. The animation simulates a button transforming into a shopping bag, including a dynamic cart icon update.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Rive integration**: Handles front and back animations for a shopping bag.
+- **Animated product screenshot**: Uses `html-to-image` to capture the product card and animate it into the bag.
+- **Framer Motion transitions**: Adds anticipation, blur, skew, and scale animations for a tactile feel.
+- **Live cart badge**: The bag icon in the top-right corner updates with a badge and pulse effect.
+- **Precise hit area**: Only the visual button area is clickable, even though the Rive asset covers more.
 
-## Expanding the ESLint configuration
+## 📦 Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [React](https://reactjs.org/)
+- [Rive](https://rive.app/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [html-to-image](https://www.npmjs.com/package/html-to-image)
+- Tailwind CSS
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 🧱 Structure
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- `App.tsx`: Main animation logic, product card, and click handling
+- `BagAnimation.riv`: Rive asset containing the shopping bag animation (front and back artboards)
+- `/assets`: Static files (videos, icons, UI overlays)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🧠 Key Concepts
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+### 👜 Rive Setup
+
+The Rive bag animation is split into two layers:
+- `FrontArtboard` and `BackArtboard`
+- Controlled independently to simulate the card entering between them
+
+### 📸 Card Screenshot
+
+The product card is captured via `html-to-image` and animated with:
+
+- `anticipate`: Skews and scales the card
+- `enter`: Shrinks and blurs into the bag
+- `hidden`: Fades out
+
+### 🧼 Cart Icon Badge
+
+- Located top-right (uses `phosphor-react`)
+- Animates only **after** bag closes
+- Number and pulse animation sync perfectly
+
+### 🧩 Click Target
+
+- The Rive animation spans a large area
+- A `56px` tall clickable zone is defined with `absolute bottom-[42px]`
+- Prevents accidental clicks above the button
+
+## 🚀 Run Locally
+
+```bash
+npm install
+npm run dev

@@ -174,8 +174,8 @@ function App() {
 
         <div
           className={`
-          absolute inset-0 z-25 rounded-3xl pointer-events-none 
-          backdrop-blur-xs 
+          absolute inset-0 z-25 rounded-3xl pointer-events-none
+          backdrop-blur-xs
           transition-opacity duration-300 ease-in-out
           ${startVisualEffects ? "opacity-100" : "opacity-0"}
         `}
@@ -321,7 +321,7 @@ function App() {
 
         <div className="absolute bottom-0 left-0 w-full flex justify-center">
           <div className="relative w-[375px] h-[224px]">
-            {/* Rive animations */}
+
             <RiveBack
               className={`absolute top-0 left-0 w-full h-full z-40 ${
                 isBackVisible ? "block" : "hidden"

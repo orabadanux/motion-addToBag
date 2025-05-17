@@ -2,7 +2,7 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // ✅ Scans all relevant files
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -29,7 +29,6 @@ export default {
   plugins: [],
   future: {
     respectDefaultRingColorOpacity: false,
-    // Add this line below
     disableColorPalette: true,
   },
   corePlugins: {

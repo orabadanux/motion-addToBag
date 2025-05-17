@@ -1,11 +1,10 @@
-
-
 .app-container {
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
 }
+
 .blurred {
   transform: scale(0.98);
   filter: blur(3px);
@@ -16,15 +15,9 @@
   height: 100%;
 }
 
-
-
 .overlay {
   position: absolute;
   bottom: 50px;
   right: 50px;
   cursor: pointer;
-}
-
-.add-to-bag-button {
-  /* Customize the style of your button container */
 }
