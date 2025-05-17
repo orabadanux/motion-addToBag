@@ -1,8 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import { useRive } from '@rive-app/react-canvas';
-import { toPng } from 'html-to-image';
-import { Handbag, List, MagnifyingGlass, ArrowsHorizontal } from 'phosphor-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from "react";
+import { useRive } from "@rive-app/react-canvas";
+import { toPng } from "html-to-image";
+import {
+  Handbag,
+  List,
+  MagnifyingGlass,
+  ArrowsHorizontal,
+} from "phosphor-react";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 
 function App() {
   const productCardRef = useRef<HTMLDivElement>(null);
@@ -18,14 +23,14 @@ function App() {
   const [hideScreenshot, setHideScreenshot] = useState(false);
 
   const { rive: riveFront, RiveComponent: RiveFront } = useRive({
-    src: '/assets/BagAnimation.riv',
-    artboard: 'FrontArtboard',
+    src: "/assets/BagAnimation.riv",
+    artboard: "FrontArtboard",
     autoplay: false,
   });
 
   const { rive: riveBack, RiveComponent: RiveBack } = useRive({
-    src: '/assets/BagAnimation.riv',
-    artboard: 'BackArtboard',
+    src: "/assets/BagAnimation.riv",
+    artboard: "BackArtboard",
     autoplay: false,
   });
 
@@ -33,11 +38,13 @@ function App() {
   const [isBackVisible, setIsBackVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [productCount, setProductCount] = useState(0);
-  const [buttonLabel, setButtonLabel] = useState('Add to Bag');
+  const [buttonLabel, setButtonLabel] = useState("Add to Bag");
+
+  const iconControls = useAnimation();
 
   useEffect(() => {
-    riveFront?.play('Idle');
-    riveBack?.play('Idle');
+    riveFront?.play("Idle");
+    riveBack?.play("Idle");
   }, [riveFront, riveBack]);
 
   const handleButtonClick = async () => {
@@ -49,7 +56,7 @@ function App() {
     const containerEl = containerRef.current;
     if (!productCardEl || !containerEl) return;
 
-    const videoEl = productCardEl.querySelector('video');
+    const videoEl = productCardEl.querySelector("video");
     if (videoEl) videoEl.pause();
 
     const rect = productCardEl.getBoundingClientRect();
@@ -65,7 +72,7 @@ function App() {
 
     try {
       const dataUrl = await toPng(productCardEl, {
-        backgroundColor: 'white',
+        backgroundColor: "white",
         cacheBust: true,
         width,
         height,
@@ -79,84 +86,133 @@ function App() {
         setTimeout(() => setStartVisualEffects(true), 80);
       });
     } catch (err) {
-      console.error('❌ Screenshot failed:', err);
+      console.error("❌ Screenshot failed:", err);
     }
 
-    riveFront?.play('BagStart');
+    riveFront?.play("BagStart");
 
     setTimeout(() => {
       setIsBackVisible(true);
-      riveFront?.play('OpenBagFront');
-      riveBack?.play('OpenBagBack');
-    }, 833);
+      riveFront?.play("OpenBagFront");
+      riveBack?.play("OpenBagBack");
+    }, 500);
 
     setTimeout(() => {
-      riveFront?.play('EnterBagFront');
-      riveBack?.play('EnterBagBack');
+      riveFront?.play("EnterBagFront");
+      riveBack?.play("EnterBagBack");
     }, 1000);
 
     setTimeout(() => {
-      riveFront?.play('CloseBag');
+      riveFront?.play("CloseBag");
       setIsAnimating(false);
+      setStartVisualEffects(false);
+      const futureCount = productCount + 1;
+      setButtonLabel(`Add to Bag - ${futureCount} for $${futureCount * 130}`);
     }, 1750);
 
     setTimeout(() => {
-      riveFront?.play('Idle');
-      riveBack?.play('Idle');
-      const updated = productCount + 1;
-      setProductCount(updated);
-      setButtonLabel(`Add to Bag - ${updated} for $${updated * 130}`);
+      riveFront?.play("Idle");
+      riveBack?.play("Idle");
       setScreenshotUrl(null);
       setIsTextVisible(true);
-      setStartVisualEffects(false);
       setAnticipate(false);
       setEnterBag(false);
       setHideScreenshot(false);
       if (videoEl) videoEl.play();
+
+      setProductCount((prev) => {
+        const updated = prev + 1;
+        iconControls.start({
+          scale: [1, 1.3, 1],
+          transition: { duration: 0.3 },
+        });
+        return updated;
+      });
     }, 2250);
   };
 
   const screenshotVariants = {
     initial: {
       opacity: 1,
-      transform: 'perspective(800px) translateY(0px) scale(1) rotateX(0deg) rotateY(0deg)',
+      transform:
+        "perspective(800px) translateY(0px) scale(1) rotateX(0deg) rotateY(0deg)",
+      filter: "blur(0px)",
     },
     anticipate: {
-      transform: 'perspective(800px) translateY(-20px) scale(0.9) rotateX(-20deg) rotateY(-20deg)',
-      transition: { duration: 0.9, ease: 'easeIn' },
+      transform:
+        "perspective(800px) translateY(-20px) scale(0.9) rotateX(-20deg) rotateY(-20deg)",
+      transition: { duration: 0.9, ease: "easeIn" },
+      filter: "blur(0px)",
     },
     enter: {
-      transform: 'perspective(400px) translateY(50px) scale(0.03) rotateX(-30deg) rotateY(-50deg)',
-      transition: { duration: 0.6, ease: 'easeInOut' },
+      transform:
+        "perspective(400px) translateY(60px) scale(0.001) rotateX(-10deg) rotateY(-50deg)",
+      filter: ["blur(0px)", "blur(10px)"],
+      transition: {
+        transform: { duration: 0.55, ease: "easeInOut" },
+        filter: { duration: 0.25, ease: "easeInOut" },
+      },
     },
     hidden: {
       opacity: 0,
+      filter: "blur(44px)",
       transition: { duration: 0.1 },
     },
   };
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-slate-50 overflow-hidden">
-      <div ref={containerRef} className="relative w-[280px] h-[610px] bg-neutral-100 rounded-3xl shadow-xl overflow-hidden px-3">
+      <div
+        ref={containerRef}
+        className="relative w-[280px] h-[610px] bg-neutral-100 rounded-3xl shadow-xl overflow-hidden px-3"
+      >
+        <img
+          src="/assets/status_bar.svg"
+          className="absolute top-0 left-0 w-full h-[44px] z-90 pointer-events-none"
+          alt=""
+        />
 
-        {/* Top bar */}
-        <img src="/assets/status_bar.svg" className="absolute top-0 left-0 w-full h-[44px] z-90 pointer-events-none" alt="" />
-
-        {/* Blur effect during animation */}
-        <div className={`
+        <div
+          className={`
           absolute inset-0 z-25 rounded-3xl pointer-events-none 
           backdrop-blur-xs 
           transition-opacity duration-300 ease-in-out
-          ${startVisualEffects ? 'opacity-100' : 'opacity-0'}
-        `} />
+          ${startVisualEffects ? "opacity-100" : "opacity-0"}
+        `}
+        />
 
-        {/* Main product card */}
-        <div className={`relative z-20 transition-all duration-500 ${startVisualEffects ? 'scale-[0.96]' : ''}`}>
+        <div
+          className={`relative z-20 transition-all duration-500 ${
+            startVisualEffects ? "scale-[0.96]" : ""
+          }`}
+        >
           <div className="pt-[44px] pb-4 flex justify-between items-center">
             <List size={18} />
             <div className="flex gap-4">
               <MagnifyingGlass size={18} />
-              <Handbag size={18} />
+              <motion.div animate={iconControls} className="relative">
+                <Handbag
+                  size={18}
+                  weight={productCount > 0 ? "fill" : "regular"}
+                />
+                <AnimatePresence>
+                  {productCount > 0 && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
+                      className="absolute -top-2 -right-2 w-4 h-4 flex items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold"
+                    >
+                      {productCount}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             </div>
           </div>
 
@@ -166,10 +222,16 @@ function App() {
           >
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="font-lato text-base font-semibold text-neutral-900">Nike Air Max 90</h1>
-                <p className="font-lato text-xs text-neutral-500">Men's Shoes</p>
+                <h1 className="font-lato text-base font-semibold text-neutral-900">
+                  Nike Air Max 90
+                </h1>
+                <p className="font-lato text-xs text-neutral-500">
+                  Men's Shoes
+                </p>
               </div>
-              <p className="font-lato text-xl font-bold text-neutral-900">$130</p>
+              <p className="font-lato text-xl font-bold text-neutral-900">
+                $130
+              </p>
             </div>
             <div className="my-2 w-full h-[240px] relative overflow-hidden">
               <video
@@ -183,8 +245,12 @@ function App() {
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <span className="font-lato text-sm font-semibold text-neutral-900">Select size</span>
-                <div className="font-lato px-2 py-1 bg-neutral-100 text-neutral-900 rounded-md text-sm font-semibold">11</div>
+                <span className="font-lato text-sm font-semibold text-neutral-900">
+                  Select size
+                </span>
+                <div className="font-lato px-2 py-1 bg-neutral-100 text-neutral-900 rounded-md text-sm font-semibold">
+                  11
+                </div>
               </div>
               <button className="font-lato px-2 py-1.5 border border-gray-300 text-neutral-900 rounded-lg text-sm flex items-center gap-1.5">
                 <ArrowsHorizontal size={12} />
@@ -193,67 +259,98 @@ function App() {
             </div>
           </div>
 
-          {/* Suggestions */}
           <div className="mt-3 space-y-2">
-            <p className="font-lato font-medium text-base text-neutral-900">You might also like</p>
+            <p className="font-lato font-medium text-base text-neutral-900">
+              You might also like
+            </p>
             <div className="grid grid-cols-2 gap-2">
               <div className="aspect-[1/1] bg-white rounded-lg flex items-center justify-center">
-                <img src="/assets/greensneaker.png" className="object-contain" alt="" />
+                <img
+                  src="/assets/greensneaker.png"
+                  className="object-contain"
+                  alt=""
+                />
               </div>
               <div className="aspect-[1/1] bg-white rounded-lg flex items-center justify-center">
-                <img src="/assets/blacksneaker.png" className="object-contain" alt="" />
+                <img
+                  src="/assets/blacksneaker.png"
+                  className="object-contain"
+                  alt=""
+                />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Screenshot animation layer */}
         <AnimatePresence>
           {screenshotUrl && !hideScreenshot && (
             <motion.div
               initial="initial"
-              animate={anticipate ? (enterBag ? 'enter' : 'anticipate') : 'initial'}
+              animate={
+                anticipate ? (enterBag ? "enter" : "anticipate") : "initial"
+              }
               exit="hidden"
               variants={screenshotVariants}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: cardPosition.top,
                 left: cardPosition.left,
                 width: cardSize.width,
                 height: cardSize.height,
-                borderRadius: '1rem',
-                overflow: 'hidden',
+                borderRadius: "1rem",
+                overflow: "hidden",
                 zIndex: 45,
-                transformOrigin: 'bottom center',
+                transformOrigin: "bottom center",
               }}
               className="pointer-events-none"
             >
-              <img src={screenshotUrl} alt="Screenshot" className="w-full h-full object-cover" />
+              <img
+                src={screenshotUrl}
+                alt="Screenshot"
+                className="w-full h-full object-cover"
+              />
               <motion.div
                 className="absolute inset-0 bg-blue-400 pointer-events-none"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: enterBag ? 1 : 0 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Rive animation + button text */}
-        <div className="absolute bottom-0 left-0 w-full flex justify-center z-50">
-          <div className="relative w-[375px] h-[224px] cursor-pointer" onClick={handleButtonClick}>
-            <RiveBack className={`absolute top-0 left-0 w-full h-full z-40 ${isBackVisible ? 'block' : 'hidden'}`} />
+        <div className="absolute bottom-0 left-0 w-full flex justify-center">
+          <div className="relative w-[375px] h-[224px]">
+            {/* Rive animations */}
+            <RiveBack
+              className={`absolute top-0 left-0 w-full h-full z-40 ${
+                isBackVisible ? "block" : "hidden"
+              }`}
+            />
             <RiveFront className="absolute top-0 left-0 w-full h-full z-60" />
-            <div className={`absolute w-full bottom-[42px] flex justify-center pointer-events-none transition-opacity duration-300 z-70 ${
-              isTextVisible ? 'opacity-100' : 'opacity-0'
-            }`}>
-              <span className="text-white font-lato text-sm font-medium">{buttonLabel}</span>
+
+            <div
+              className="absolute bottom-[30px] left-1/2 -translate-x-1/2 w-[254px] h-[48px] z-70 cursor-pointer flex items-center justify-center"
+              onClick={handleButtonClick}
+            >
+              <div
+                className={`pointer-events-none transition-opacity duration-300 ${
+                  isTextVisible ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <span className="text-white font-lato text-sm font-medium">
+                  {buttonLabel}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* iOS home indicator */}
-        <img src="/assets/home_indicator.svg" className="absolute bottom-0 left-0 w-full h-[34px] z-80 pointer-events-none" alt="" />
+        <img
+          src="/assets/home_indicator.svg"
+          className="absolute bottom-0 left-0 w-full h-[34px] z-80 pointer-events-none"
+          alt=""
+        />
       </div>
     </div>
   );
